@@ -12,6 +12,7 @@
   --text:#1a1a2e;--text-light:#64648c;--text-lighter:#9e9eb8;
   --green:#22c55e;--green-bg:#dcfce7;--green-border:#86efac;
   --red:#ef4444;--red-bg:#fee2e2;--red-border:#fca5a5;
+  --blue:#3b82f6;--blue-bg:#dbeafe;--blue-border:#93c5fd;
   --radius:16px;--radius-sm:12px;
 }
 html{font-size:16px;-webkit-tap-highlight-color:transparent}
@@ -35,6 +36,12 @@ body{
 }
 .score-badge .correct{color:var(--green)}
 .score-badge .wrong{color:var(--red)}
+.mode-pill{
+  font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;
+  padding:4px 10px;border-radius:12px;color:#fff;
+}
+.mode-pill.practice{background:var(--green)}
+.mode-pill.test{background:var(--blue)}
 
 /* ─── Progress ─── */
 .progress-wrap{flex-shrink:0;margin-bottom:16px}
@@ -43,6 +50,7 @@ body{
 .progress-info .cat{font-size:.75rem;color:var(--text-light);font-weight:500;text-align:right;max-width:60%}
 .progress-bar{height:6px;border-radius:3px;background:#e8e8f0;overflow:hidden}
 .progress-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--sun1),var(--sun3));transition:width .4s ease}
+.progress-fill.test-mode{background:linear-gradient(90deg,var(--blue),#60a5fa)}
 
 /* ─── Card ─── */
 .card{
@@ -89,7 +97,6 @@ body{
 }
 .explanation.right{background:var(--green-bg);border-left:4px solid var(--green)}
 .explanation.wrong-exp{background:var(--red-bg);border-left:4px solid var(--red)}
-.explanation strong{font-weight:700}
 
 /* ─── Next button ─── */
 .next-btn{
@@ -100,6 +107,11 @@ body{
   transition:transform .15s,box-shadow .15s;
 }
 .next-btn:active{transform:scale(.97);box-shadow:0 2px 8px rgba(255,107,53,.2)}
+.next-btn.blue{
+  background:linear-gradient(135deg,var(--blue),#60a5fa);
+  box-shadow:0 4px 16px rgba(59,130,246,.3);
+}
+.next-btn.blue:active{box-shadow:0 2px 8px rgba(59,130,246,.2)}
 
 /* ─── Results ─── */
 .results{animation:fadeUp .4s ease}
@@ -108,6 +120,12 @@ body{
 .results-header .pct{font-size:2.4rem;font-weight:800;background:linear-gradient(135deg,var(--sun1),var(--sun2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .results-header .subtitle{font-size:.95rem;color:var(--text-light);margin-top:4px}
 .results-header .score-detail{font-size:1rem;font-weight:600;margin-top:2px}
+.results-header .pass-badge{
+  display:inline-block;margin-top:10px;padding:6px 18px;border-radius:20px;
+  font-size:.9rem;font-weight:700;
+}
+.results-header .pass-badge.passed{background:var(--green-bg);color:var(--green);border:2px solid var(--green-border)}
+.results-header .pass-badge.failed{background:var(--red-bg);color:var(--red);border:2px solid var(--red-border)}
 
 .cat-breakdown{margin-bottom:24px}
 .cat-breakdown h3{font-size:.95rem;font-weight:700;margin-bottom:12px}
@@ -127,14 +145,35 @@ body{
   background:#fff;color:var(--sun1);border:2px solid var(--sun1);
   box-shadow:none;
 }
+.results-btns .next-btn.secondary.blue-outline{
+  color:var(--blue);border-color:var(--blue);
+}
+
+/* ─── Review section (test mode) ─── */
+.review-section{margin-bottom:24px}
+.review-section h3{font-size:.95rem;font-weight:700;margin-bottom:12px}
+.review-item{
+  padding:16px;border-radius:var(--radius-sm);margin-bottom:12px;
+  background:#fff5f5;border:1px solid #fecaca;
+}
+.review-item .review-q{font-size:.92rem;font-weight:600;line-height:1.5;margin-bottom:8px}
+.review-item .review-your{font-size:.85rem;color:var(--red);margin-bottom:4px}
+.review-item .review-correct{font-size:.85rem;color:var(--green);margin-bottom:6px}
+.review-item .review-exp{font-size:.82rem;color:var(--text-light);line-height:1.5}
 
 /* ─── Start screen ─── */
 .start-screen{text-align:center;flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:16px;padding:20px}
 .start-screen .logo{font-size:4rem}
 .start-screen h2{font-size:1.5rem;font-weight:800;background:linear-gradient(135deg,var(--sun1),var(--sun2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.start-screen p{font-size:.92rem;color:var(--text-light);line-height:1.6;max-width:320px}
+.start-screen p{font-size:.92rem;color:var(--text-light);line-height:1.6;max-width:340px}
 .start-screen .cats{text-align:left;font-size:.82rem;color:var(--text-light);line-height:1.8;margin:4px 0}
 .start-screen .cats span{background:#f0f0fa;padding:3px 10px;border-radius:8px;display:inline-block;margin:2px 3px;white-space:nowrap}
+
+.mode-buttons{display:flex;flex-direction:column;gap:10px;width:100%;max-width:300px;margin-top:4px}
+.mode-desc{
+  font-size:.78rem;color:var(--text-lighter);line-height:1.4;margin-top:-4px;
+  text-align:center;max-width:300px;
+}
 
 .hidden{display:none!important}
 </style>
@@ -146,7 +185,7 @@ body{
   <div id="startScreen" class="start-screen">
     <div class="logo">🚗</div>
     <h2>CA Permit Practice</h2>
-    <p>50 questions weighted toward the topics that trip up first-time test-takers the most.</p>
+    <p>50 questions across 9 categories, weighted toward the topics that trip up first-time test-takers the most.</p>
     <div class="cats">
       <span>🚦 Right-of-Way</span>
       <span>🪧 Signs & Signals</span>
@@ -158,14 +197,19 @@ body{
       <span>🔑 Provisional License</span>
       <span>📱 Misc Rules</span>
     </div>
-    <button class="next-btn" id="startBtn" style="max-width:280px">Start Practice Test</button>
+    <div class="mode-buttons">
+      <button class="next-btn" id="startPracticeBtn">📖 Practice Mode</button>
+      <p class="mode-desc">All 50 questions · Instant feedback & explanations · Retry missed</p>
+      <button class="next-btn blue" id="startTestBtn">📝 Test Mode</button>
+      <p class="mode-desc">46 random questions · No feedback until the end · Pass = 38/46 (83%)</p>
+    </div>
   </div>
 
   <!-- QUIZ SCREEN -->
   <div id="quizScreen" class="hidden">
     <div class="header">
       <h1>CA Permit Practice</h1>
-      <div class="score-badge"><span class="correct" id="rightCount">0</span> ✓ &nbsp;<span class="wrong" id="wrongCount">0</span> ✗</div>
+      <div id="headerRight"></div>
     </div>
     <div class="progress-wrap">
       <div class="progress-info">
@@ -259,7 +303,9 @@ const questions = [
 // ═══════════════════════════════════════════════════════
 //  STATE
 // ═══════════════════════════════════════════════════════
-let pool=[], idx=0, right=0, wrong=0, answered=false, missed=[];
+let pool=[], idx=0, right=0, wrong=0, answered=false, missed=[], mode='practice';
+// In test mode, store user answers: {choiceIdx, questionRef}
+let testAnswers=[];
 
 // ═══════════════════════════════════════════════════════
 //  UTILITIES
@@ -271,13 +317,39 @@ const letters=['A','B','C','D'];
 // ═══════════════════════════════════════════════════════
 //  START / RESTART
 // ═══════════════════════════════════════════════════════
-function startQuiz(subset){
+function startPractice(subset){
+  mode='practice';
   pool=subset?shuffle([...subset]):shuffle([...questions]);
-  idx=0;right=0;wrong=0;answered=false;missed=[];
+  idx=0;right=0;wrong=0;answered=false;missed=[];testAnswers=[];
+  showQuizScreen();
+}
+
+function startTest(){
+  mode='test';
+  // Pick 46 random from 50
+  var shuffled=shuffle([...questions]);
+  pool=shuffled.slice(0,46);
+  idx=0;right=0;wrong=0;answered=false;missed=[];testAnswers=[];
+  showQuizScreen();
+}
+
+function showQuizScreen(){
   $('startScreen').classList.add('hidden');
   $('resultsScreen').classList.add('hidden');
   $('quizScreen').classList.remove('hidden');
-  updateScore();
+
+  // Update header right area
+  if(mode==='practice'){
+    $('headerRight').innerHTML='<div class="score-badge"><span class="correct" id="rightCount">0</span> ✓ &nbsp;<span class="wrong" id="wrongCount">0</span> ✗</div>';
+  }else{
+    $('headerRight').innerHTML='<span class="mode-pill test">Test Mode</span>';
+  }
+
+  // Progress bar color
+  var fill=$('progFill');
+  if(mode==='test'){fill.classList.add('test-mode');}
+  else{fill.classList.remove('test-mode');}
+
   renderQuestion();
 }
 
@@ -286,26 +358,26 @@ function startQuiz(subset){
 // ═══════════════════════════════════════════════════════
 function renderQuestion(){
   answered=false;
-  const q=pool[idx];
-  const total=pool.length;
-  $('qNum').textContent=`${idx+1} / ${total}`;
-  $('qCat').textContent=q.cat;
-  $('progFill').style.width=`${((idx)/total)*100}%`;
+  var q=pool[idx];
+  var total=pool.length;
+  $('qNum').textContent=(idx+1)+' / '+total;
+  $('qCat').textContent=mode==='practice'?q.cat:'';
+  $('progFill').style.width=((idx)/total*100)+'%';
 
-  let html=`<div class="question-text">${q.q}</div><div class="choices">`;
-  q.choices.forEach((c,i)=>{
-    html+=`<button class="choice-btn" data-idx="${i}" id="ch${i}">
-      <span class="letter">${letters[i]}</span><span>${c}</span>
-    </button>`;
+  var html='<div class="question-text">'+q.q+'</div><div class="choices">';
+  q.choices.forEach(function(c,i){
+    html+='<button class="choice-btn" data-idx="'+i+'" id="ch'+i+'"><span class="letter">'+letters[i]+'</span><span>'+c+'</span></button>';
   });
-  html+=`</div><div id="expArea"></div><div id="nextArea"></div>`;
-  const card=$('questionCard');
+  html+='</div><div id="expArea"></div><div id="nextArea"></div>';
+  var card=$('questionCard');
   card.innerHTML=html;
+
   // Attach click listeners
-  card.querySelectorAll('.choice-btn').forEach(btn=>{
-    btn.addEventListener('click',()=>pick(parseInt(btn.dataset.idx)));
+  card.querySelectorAll('.choice-btn').forEach(function(btn){
+    btn.addEventListener('click',function(){pick(parseInt(btn.dataset.idx));});
   });
-  // re-trigger animation
+
+  // Re-trigger animation
   card.style.animation='none';
   card.offsetHeight;
   card.style.animation='';
@@ -317,11 +389,20 @@ function renderQuestion(){
 function pick(i){
   if(answered)return;
   answered=true;
-  const q=pool[idx];
-  const isCorrect=i===q.ans;
+  var q=pool[idx];
+
+  if(mode==='practice'){
+    pickPractice(i,q);
+  }else{
+    pickTest(i,q);
+  }
+}
+
+function pickPractice(i,q){
+  var isCorrect=i===q.ans;
 
   // Disable all buttons
-  document.querySelectorAll('.choice-btn').forEach(b=>b.disabled=true);
+  document.querySelectorAll('.choice-btn').forEach(function(b){b.disabled=true;});
 
   // Highlight correct
   $('ch'+q.ans).classList.add('correct');
@@ -334,98 +415,197 @@ function pick(i){
     missed.push(q);
   }
   // Dim others
-  q.choices.forEach((_,j)=>{
+  q.choices.forEach(function(_,j){
     if(j!==q.ans&&j!==i) $('ch'+j).classList.add('dimmed');
   });
 
   updateScore();
 
   // Explanation
-  $('expArea').innerHTML=`<div class="explanation ${isCorrect?'right':'wrong-exp'}">
-    ${isCorrect?'✅ Correct!':'❌ Incorrect.'} ${q.exp}
-  </div>`;
+  $('expArea').innerHTML='<div class="explanation '+(isCorrect?'right':'wrong-exp')+'">'+(isCorrect?'✅ Correct!':'❌ Incorrect.')+' '+q.exp+'</div>';
 
   // Next button
-  const isLast=idx>=pool.length-1;
-  const nextBtn=document.createElement('button');
+  var isLast=idx>=pool.length-1;
+  var nextBtn=document.createElement('button');
   nextBtn.className='next-btn';
   nextBtn.textContent=isLast?'See Results':'Next →';
-  nextBtn.addEventListener('click',()=>isLast?showResults():nextQ());
+  nextBtn.addEventListener('click',function(){isLast?showPracticeResults():nextQ();});
   $('nextArea').innerHTML='';
   $('nextArea').appendChild(nextBtn);
 }
 
-function nextQ(){idx++;renderQuestion()}
+function pickTest(i,q){
+  // Store answer
+  testAnswers.push({qIdx:idx,choiceIdx:i});
+
+  // Disable all, highlight selection only (no right/wrong)
+  document.querySelectorAll('.choice-btn').forEach(function(b){b.disabled=true;});
+  $('ch'+i).classList.add('selected');
+
+  // Dim others
+  q.choices.forEach(function(_,j){
+    if(j!==i) $('ch'+j).classList.add('dimmed');
+  });
+
+  // Next button
+  var isLast=idx>=pool.length-1;
+  var nextBtn=document.createElement('button');
+  nextBtn.className='next-btn blue';
+  nextBtn.textContent=isLast?'Submit Test':'Next →';
+  nextBtn.addEventListener('click',function(){isLast?showTestResults():nextQ();});
+  $('nextArea').innerHTML='';
+  $('nextArea').appendChild(nextBtn);
+}
+
+function nextQ(){idx++;renderQuestion();}
 function updateScore(){
-  $('rightCount').textContent=right;
-  $('wrongCount').textContent=wrong;
+  var rc=$('rightCount');
+  var wc=$('wrongCount');
+  if(rc)rc.textContent=right;
+  if(wc)wc.textContent=wrong;
 }
 
 // ═══════════════════════════════════════════════════════
-//  RESULTS
+//  PRACTICE RESULTS
 // ═══════════════════════════════════════════════════════
-function showResults(){
+function showPracticeResults(){
   $('quizScreen').classList.add('hidden');
-  const total=pool.length;
-  const pct=Math.round((right/total)*100);
-  const passed=pct>=83; // CA DMV passing is ~83%
+  var total=pool.length;
+  var pct=Math.round((right/total)*100);
+  var passed=pct>=83;
 
   // Category breakdown
-  const cats={};
-  pool.forEach(q=>{
+  var cats={};
+  pool.forEach(function(q){
     if(!cats[q.cat])cats[q.cat]={total:0,correct:0};
     cats[q.cat].total++;
   });
-  pool.forEach((q,i)=>{
-    if(!missed.find(m=>m===q)) cats[q.cat].correct++;
+  pool.forEach(function(q){
+    if(missed.indexOf(q)===-1) cats[q.cat].correct++;
   });
 
-  let catHtml='';
-  for(const[name,data]of Object.entries(cats)){
-    const cpct=Math.round((data.correct/data.total)*100);
-    const cls=cpct===100?'perfect':cpct<70?'needs-work':'';
-    catHtml+=`<div class="cat-row ${cls}">
-      <span class="cat-name">${name}</span>
-      <span class="cat-score">${data.correct}/${data.total} (${cpct}%)</span>
-    </div>`;
+  var catHtml='';
+  for(var name in cats){
+    var data=cats[name];
+    var cpct=Math.round((data.correct/data.total)*100);
+    var cls=cpct===100?'perfect':cpct<70?'needs-work':'';
+    catHtml+='<div class="cat-row '+cls+'"><span class="cat-name">'+name+'</span><span class="cat-score">'+data.correct+'/'+data.total+' ('+cpct+'%)</span></div>';
   }
 
-  const emoji=passed?'🎉':pct>=70?'😅':'📚';
-  const subtitle=passed?'You passed! You\'re ready for Thursday!' : pct>=70?'Almost there — review the red categories below.':'Keep studying — focus on the categories marked in red.';
+  var emoji=passed?'🎉':pct>=70?'😅':'📚';
+  var subtitle=passed?'You passed! You\'re ready for Thursday!' : pct>=70?'Almost there — review the red categories below.':'Keep studying — focus on the categories marked in red.';
 
-  let html=`<div class="results">
-    <div class="results-header">
-      <div class="emoji">${emoji}</div>
-      <div class="pct">${pct}%</div>
-      <div class="score-detail">${right} correct out of ${total}</div>
-      <div class="subtitle">${subtitle}</div>
-    </div>
-    <div class="cat-breakdown">
-      <h3>Score by Category</h3>
-      ${catHtml}
-    </div>
-    <div class="results-btns">`;
+  var html='<div class="results"><div class="results-header"><div class="emoji">'+emoji+'</div><div class="pct">'+pct+'%</div><div class="score-detail">'+right+' correct out of '+total+'</div><div class="subtitle">'+subtitle+'</div></div>';
+  html+='<div class="cat-breakdown"><h3>Score by Category</h3>'+catHtml+'</div>';
+  html+='<div class="results-btns">';
 
   if(missed.length>0){
-    html+=`<button class="next-btn" id="retryBtn">🔁 Retry ${missed.length} Missed Question${missed.length>1?'s':''}</button>`;
+    html+='<button class="next-btn" id="retryBtn">🔁 Retry '+missed.length+' Missed Question'+(missed.length>1?'s':'')+'</button>';
   }
-  html+=`<button class="next-btn secondary" id="restartBtn">🔀 Start Over (Reshuffled)</button>`;
-  html+=`</div></div>`;
+  html+='<button class="next-btn secondary" id="restartPracticeBtn">🔀 Start Over (Reshuffled)</button>';
+  html+='<button class="next-btn blue" id="switchToTestBtn">📝 Switch to Test Mode</button>';
+  html+='</div></div>';
 
   $('resultsScreen').innerHTML=html;
   $('resultsScreen').classList.remove('hidden');
-  // Attach result button listeners
-  const retryBtn=$('retryBtn');
-  if(retryBtn) retryBtn.addEventListener('click',()=>startQuiz(missed));
-  $('restartBtn').addEventListener('click',()=>startQuiz());
+
+  // Attach listeners
+  var retryBtn=$('retryBtn');
+  if(retryBtn) retryBtn.addEventListener('click',function(){startPractice(missed);});
+  $('restartPracticeBtn').addEventListener('click',function(){startPractice();});
+  $('switchToTestBtn').addEventListener('click',function(){startTest();});
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ═══════════════════════════════════════════════════════
+//  TEST RESULTS
+// ═══════════════════════════════════════════════════════
+function showTestResults(){
+  $('quizScreen').classList.add('hidden');
+
+  // Score the test
+  var total=pool.length;
+  var correctCount=0;
+  var wrongItems=[];
+  testAnswers.forEach(function(a){
+    var q=pool[a.qIdx];
+    if(a.choiceIdx===q.ans){
+      correctCount++;
+    }else{
+      wrongItems.push({q:q,userChoice:a.choiceIdx});
+    }
+  });
+
+  var pct=Math.round((correctCount/total)*100);
+  var passed=correctCount>=38;
+
+  // Category breakdown
+  var cats={};
+  pool.forEach(function(q){
+    if(!cats[q.cat])cats[q.cat]={total:0,correct:0};
+    cats[q.cat].total++;
+    cats[q.cat].correct++;
+  });
+  wrongItems.forEach(function(item){
+    cats[item.q.cat].correct--;
+  });
+
+  var catHtml='';
+  for(var name in cats){
+    var data=cats[name];
+    var cpct=Math.round((data.correct/data.total)*100);
+    var cls=cpct===100?'perfect':cpct<70?'needs-work':'';
+    catHtml+='<div class="cat-row '+cls+'"><span class="cat-name">'+name+'</span><span class="cat-score">'+data.correct+'/'+data.total+' ('+cpct+'%)</span></div>';
+  }
+
+  var emoji=passed?'🎉':pct>=70?'😅':'📚';
+  var subtitle=passed?'You passed! You\'re ready for Thursday!':'You need 38/46 to pass. Keep practicing!';
+  var badgeClass=passed?'passed':'failed';
+  var badgeText=passed?'✅ PASS':'❌ FAIL';
+
+  var html='<div class="results"><div class="results-header"><div class="emoji">'+emoji+'</div><div class="pct">'+correctCount+' / '+total+'</div><div class="score-detail">'+pct+'% correct</div><div class="pass-badge '+badgeClass+'">'+badgeText+'</div><div class="subtitle">'+subtitle+'</div></div>';
+
+  html+='<div class="cat-breakdown"><h3>Score by Category</h3>'+catHtml+'</div>';
+
+  // Wrong answers review
+  if(wrongItems.length>0){
+    html+='<div class="review-section"><h3>❌ Review — '+wrongItems.length+' Wrong Answer'+(wrongItems.length>1?'s':'')+'</h3>';
+    wrongItems.forEach(function(item){
+      html+='<div class="review-item">';
+      html+='<div class="review-q">'+item.q.q+'</div>';
+      html+='<div class="review-your">Your answer: '+letters[item.userChoice]+'. '+item.q.choices[item.userChoice]+'</div>';
+      html+='<div class="review-correct">Correct answer: '+letters[item.q.ans]+'. '+item.q.choices[item.q.ans]+'</div>';
+      html+='<div class="review-exp">'+item.q.exp+'</div>';
+      html+='</div>';
+    });
+    html+='</div>';
+  }
+
+  html+='<div class="results-btns">';
+  html+='<button class="next-btn blue" id="retakeTestBtn">🔄 Retake Test</button>';
+  html+='<button class="next-btn" id="switchToPracticeBtn">📖 Switch to Practice Mode</button>';
+  html+='<button class="next-btn secondary" id="backHomeBtn">🏠 Back to Start</button>';
+  html+='</div></div>';
+
+  $('resultsScreen').innerHTML=html;
+  $('resultsScreen').classList.remove('hidden');
+
+  // Attach listeners
+  $('retakeTestBtn').addEventListener('click',function(){startTest();});
+  $('switchToPracticeBtn').addEventListener('click',function(){startPractice();});
+  $('backHomeBtn').addEventListener('click',function(){
+    $('resultsScreen').classList.add('hidden');
+    $('startScreen').classList.remove('hidden');
+  });
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
 // ═══════════════════════════════════════════════════════
 //  INIT
 // ═══════════════════════════════════════════════════════
-document.addEventListener('DOMContentLoaded',()=>{
-  $('startBtn').addEventListener('click',()=>startQuiz());
+document.addEventListener('DOMContentLoaded',function(){
+  $('startPracticeBtn').addEventListener('click',function(){startPractice();});
+  $('startTestBtn').addEventListener('click',function(){startTest();});
 });
 </script>
 </body>
