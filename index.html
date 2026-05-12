@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>CA Permit Practice Test</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --sun1:#FF6B35;--sun2:#F7931E;--sun3:#FFD23F;--sky:#1a1a2e;
+  --card:#ffffff;--card-shadow:0 8px 32px rgba(0,0,0,.08);
+  --text:#1a1a2e;--text-light:#64648c;--text-lighter:#9e9eb8;
+  --green:#22c55e;--green-bg:#dcfce7;--green-border:#86efac;
+  --red:#ef4444;--red-bg:#fee2e2;--red-border:#fca5a5;
+  --radius:16px;--radius-sm:12px;
+}
+html{font-size:16px;-webkit-tap-highlight-color:transparent}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  background:linear-gradient(135deg,#fff5eb 0%,#fff0f5 50%,#f0f4ff 100%);
+  color:var(--text);min-height:100dvh;padding:0 0 env(safe-area-inset-bottom);
+  display:flex;flex-direction:column;align-items:center;
+}
+.container{width:100%;max-width:480px;padding:16px;flex:1;display:flex;flex-direction:column}
+
+/* ─── Header bar ─── */
+.header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 0 12px;gap:8px;flex-shrink:0;
+}
+.header h1{font-size:1.1rem;font-weight:700;background:linear-gradient(135deg,var(--sun1),var(--sun2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.score-badge{
+  font-size:.85rem;font-weight:600;padding:6px 14px;border-radius:20px;
+  background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.06);white-space:nowrap;
+}
+.score-badge .correct{color:var(--green)}
+.score-badge .wrong{color:var(--red)}
+
+/* ─── Progress ─── */
+.progress-wrap{flex-shrink:0;margin-bottom:16px}
+.progress-info{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+.progress-info .qnum{font-size:.9rem;font-weight:700}
+.progress-info .cat{font-size:.75rem;color:var(--text-light);font-weight:500;text-align:right;max-width:60%}
+.progress-bar{height:6px;border-radius:3px;background:#e8e8f0;overflow:hidden}
+.progress-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--sun1),var(--sun3));transition:width .4s ease}
+
+/* ─── Card ─── */
+.card{
+  background:var(--card);border-radius:var(--radius);box-shadow:var(--card-shadow);
+  padding:24px 20px;flex:1;display:flex;flex-direction:column;
+  animation:fadeUp .35s ease;
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+.question-text{font-size:1.05rem;font-weight:600;line-height:1.5;margin-bottom:20px}
+
+/* ─── Choices ─── */
+.choices{display:flex;flex-direction:column;gap:10px;flex:1}
+.choice-btn{
+  display:flex;align-items:flex-start;gap:12px;
+  width:100%;padding:14px 16px;border-radius:var(--radius-sm);
+  border:2px solid #e8e8f0;background:#fafafe;
+  font-size:.95rem;line-height:1.45;text-align:left;cursor:pointer;
+  transition:border-color .2s,background .2s,transform .1s;
+  -webkit-user-select:none;user-select:none;
+}
+.choice-btn:active{transform:scale(.98)}
+.choice-btn .letter{
+  flex-shrink:0;width:28px;height:28px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:.8rem;background:#e8e8f0;color:var(--text-light);
+  transition:background .2s,color .2s;
+}
+.choice-btn.selected{border-color:var(--sun2);background:#fff8f0}
+.choice-btn.selected .letter{background:var(--sun2);color:#fff}
+.choice-btn.correct{border-color:var(--green-border);background:var(--green-bg)}
+.choice-btn.correct .letter{background:var(--green);color:#fff}
+.choice-btn.wrong{border-color:var(--red-border);background:var(--red-bg)}
+.choice-btn.wrong .letter{background:var(--red);color:#fff}
+.choice-btn.dimmed{opacity:.5}
+.choice-btn[disabled]{cursor:default}
+.choice-btn[disabled]:active{transform:none}
+
+/* ─── Explanation ─── */
+.explanation{
+  margin-top:16px;padding:14px 16px;border-radius:var(--radius-sm);
+  font-size:.88rem;line-height:1.55;
+  animation:fadeUp .3s ease;
+}
+.explanation.right{background:var(--green-bg);border-left:4px solid var(--green)}
+.explanation.wrong-exp{background:var(--red-bg);border-left:4px solid var(--red)}
+.explanation strong{font-weight:700}
+
+/* ─── Next button ─── */
+.next-btn{
+  margin-top:16px;width:100%;padding:16px;border:none;border-radius:var(--radius-sm);
+  font-size:1rem;font-weight:700;color:#fff;cursor:pointer;
+  background:linear-gradient(135deg,var(--sun1),var(--sun2));
+  box-shadow:0 4px 16px rgba(255,107,53,.3);
+  transition:transform .15s,box-shadow .15s;
+}
+.next-btn:active{transform:scale(.97);box-shadow:0 2px 8px rgba(255,107,53,.2)}
+
+/* ─── Results ─── */
+.results{animation:fadeUp .4s ease}
+.results-header{text-align:center;margin-bottom:24px}
+.results-header .emoji{font-size:3rem;margin-bottom:8px}
+.results-header .pct{font-size:2.4rem;font-weight:800;background:linear-gradient(135deg,var(--sun1),var(--sun2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.results-header .subtitle{font-size:.95rem;color:var(--text-light);margin-top:4px}
+.results-header .score-detail{font-size:1rem;font-weight:600;margin-top:2px}
+
+.cat-breakdown{margin-bottom:24px}
+.cat-breakdown h3{font-size:.95rem;font-weight:700;margin-bottom:12px}
+.cat-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 14px;border-radius:10px;margin-bottom:6px;
+  background:#fafafe;border:1px solid #ececf4;
+}
+.cat-row .cat-name{font-size:.85rem;font-weight:600;flex:1}
+.cat-row .cat-score{font-size:.85rem;font-weight:700;margin-left:8px;white-space:nowrap}
+.cat-row.perfect .cat-score{color:var(--green)}
+.cat-row.needs-work .cat-score{color:var(--red)}
+.cat-row.needs-work{background:#fff5f5;border-color:#fecaca}
+
+.results-btns{display:flex;flex-direction:column;gap:10px}
+.results-btns .next-btn.secondary{
+  background:#fff;color:var(--sun1);border:2px solid var(--sun1);
+  box-shadow:none;
+}
+
+/* ─── Start screen ─── */
+.start-screen{text-align:center;flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:16px;padding:20px}
+.start-screen .logo{font-size:4rem}
+.start-screen h2{font-size:1.5rem;font-weight:800;background:linear-gradient(135deg,var(--sun1),var(--sun2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.start-screen p{font-size:.92rem;color:var(--text-light);line-height:1.6;max-width:320px}
+.start-screen .cats{text-align:left;font-size:.82rem;color:var(--text-light);line-height:1.8;margin:4px 0}
+.start-screen .cats span{background:#f0f0fa;padding:3px 10px;border-radius:8px;display:inline-block;margin:2px 3px;white-space:nowrap}
+
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="container" id="app">
+
+  <!-- START SCREEN -->
+  <div id="startScreen" class="start-screen">
+    <div class="logo">🚗</div>
+    <h2>CA Permit Practice</h2>
+    <p>50 questions weighted toward the topics that trip up first-time test-takers the most.</p>
+    <div class="cats">
+      <span>🚦 Right-of-Way</span>
+      <span>🪧 Signs & Signals</span>
+      <span>🍺 BAC / DUI</span>
+      <span>⚡ Speed Limits</span>
+      <span>🔄 Lanes & Turns</span>
+      <span>🅿️ Parking</span>
+      <span>🚲 Sharing the Road</span>
+      <span>🔑 Provisional License</span>
+      <span>📱 Misc Rules</span>
+    </div>
+    <button class="next-btn" id="startBtn" style="max-width:280px">Start Practice Test</button>
+  </div>
+
+  <!-- QUIZ SCREEN -->
+  <div id="quizScreen" class="hidden">
+    <div class="header">
+      <h1>CA Permit Practice</h1>
+      <div class="score-badge"><span class="correct" id="rightCount">0</span> ✓ &nbsp;<span class="wrong" id="wrongCount">0</span> ✗</div>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-info">
+        <span class="qnum" id="qNum">1 / 50</span>
+        <span class="cat" id="qCat"></span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="progFill" style="width:2%"></div></div>
+    </div>
+    <div class="card" id="questionCard"></div>
+  </div>
+
+  <!-- RESULTS SCREEN -->
+  <div id="resultsScreen" class="hidden"></div>
+
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  QUESTION BANK — 50 CA DMV questions
+// ═══════════════════════════════════════════════════════
+const questions = [
+// ── Right-of-Way (~10) ──
+{cat:"Right-of-Way",q:"At an uncontrolled intersection (no signs or signals), you must yield to:",choices:["The vehicle on your left","The vehicle on your right","The larger vehicle","The faster vehicle"],ans:1,exp:"At an uncontrolled intersection, you must always yield to the vehicle on your right."},
+{cat:"Right-of-Way",q:"A pedestrian with a white cane is at the corner. You must:",choices:["Honk to alert them","Stop and yield the right-of-way","Proceed slowly around them","Flash your headlights"],ans:1,exp:"A white cane indicates the pedestrian is blind. You must always stop and yield to them."},
+{cat:"Right-of-Way",q:"When you hear a siren or see flashing lights on an emergency vehicle, you should:",choices:["Speed up to get out of the way","Stop immediately wherever you are","Pull to the right edge of the road and stop","Ignore it if it's behind you"],ans:2,exp:"Pull over to the right edge of the road and stop until the emergency vehicle passes."},
+{cat:"Right-of-Way",q:"You are turning left at a green light. Oncoming traffic has the green too. You must:",choices:["Speed up and turn before they reach you","Yield to oncoming traffic and pedestrians","Honk and proceed","Wait for a green arrow only"],ans:1,exp:"On a green light (no arrow), left turners must yield to oncoming traffic and pedestrians in the intersection."},
+{cat:"Right-of-Way",q:"A school bus with flashing red lights is stopped ahead on your side of the road. You must:",choices:["Slow to 15 mph and pass carefully","Stop and wait until the lights stop flashing","Change lanes and pass","Honk to warn children"],ans:1,exp:"You must stop when a school bus has flashing red lights, regardless of your direction (unless separated by a physical divider)."},
+{cat:"Right-of-Way",q:"At a four-way stop, two cars arrive at the same time. Who goes first?",choices:["The car on the left","The car turning left","The car on the right","The larger car"],ans:2,exp:"At a four-way stop, if two vehicles arrive at the same time, the one on the right goes first."},
+{cat:"Right-of-Way",q:"You approach a yield sign. What must you do?",choices:["Stop completely every time","Slow down, check traffic, and yield if necessary","Speed up to merge quickly","Treat it like a green light"],ans:1,exp:"A yield sign means slow down and be prepared to stop. Yield the right-of-way to traffic and pedestrians."},
+{cat:"Right-of-Way",q:"A funeral procession with headlights on is approaching an intersection. You should:",choices:["Drive through if you have the green","Yield and let the procession pass","Honk to signal them","Cut in between the cars"],ans:1,exp:"You should yield to a funeral procession and not cut through or interrupt it."},
+{cat:"Right-of-Way",q:"You are entering a freeway. Traffic on the freeway has:",choices:["The obligation to let you in","No special right-of-way","The right-of-way","The same priority as you"],ans:2,exp:"Vehicles already on the freeway have the right-of-way. You must adjust your speed and merge safely."},
+{cat:"Right-of-Way",q:"At a T-intersection with no signs, who yields?",choices:["The driver on the through road","The driver on the terminating road","Both drivers must stop","The driver going uphill"],ans:1,exp:"At a T-intersection, the driver on the road that ends (the stem of the T) must yield to traffic on the through road."},
+
+// ── Signs, Signals & Road Markings (~8) ──
+{cat:"Signs & Signals",q:"A solid yellow line on your side of the center line means:",choices:["Passing is allowed with caution","You may not pass","Passing is allowed if safe","The lane is for HOV only"],ans:1,exp:"A solid yellow line on your side means no passing. You may not cross it to pass another vehicle."},
+{cat:"Signs & Signals",q:"A red arrow at an intersection means:",choices:["Stop and then proceed when safe","You may turn after yielding","You must stop and cannot turn in that direction until the arrow changes","Slow down and turn cautiously"],ans:2,exp:"A red arrow means you must stop and you cannot make that turn until the signal changes. No turn on red arrow."},
+{cat:"Signs & Signals",q:"A flashing yellow traffic light means:",choices:["Stop, then proceed when safe","Proceed with caution","The signal is broken — treat as stop sign","Speed up to clear the intersection"],ans:1,exp:"A flashing yellow light means slow down and proceed with caution."},
+{cat:"Signs & Signals",q:"What does a pennant-shaped sign indicate?",choices:["School zone","No passing zone","Construction ahead","Railroad crossing"],ans:1,exp:"A pennant-shaped sign marks the beginning of a no-passing zone. It's on the left side of the road."},
+{cat:"Signs & Signals",q:"White dashed lines on the road between lanes of traffic going the same direction mean:",choices:["No lane changes allowed","You may change lanes if safe","HOV lane only","Road is about to narrow"],ans:1,exp:"White dashed lines separate lanes of traffic going the same direction and you may cross them to change lanes."},
+{cat:"Signs & Signals",q:"An octagonal (8-sided) red sign means:",choices:["Yield","Railroad crossing","Stop","No entry"],ans:2,exp:"An octagonal red sign is always a stop sign. You must come to a complete stop."},
+{cat:"Signs & Signals",q:"A diamond-shaped orange sign means:",choices:["School zone ahead","Construction or maintenance warning","Railroad crossing","Hospital nearby"],ans:1,exp:"Diamond-shaped orange signs warn of construction zones, road work, or maintenance ahead."},
+{cat:"Signs & Signals",q:"You see a sign with a green circle. This means:",choices:["The action shown is allowed","Construction zone ahead","Hospital zone","Pedestrian crossing"],ans:0,exp:"A green circle on a sign indicates that the action shown (like turning) is permitted."},
+
+// ── BAC / DUI / Zero-Tolerance (~6) ──
+{cat:"BAC & DUI",q:"The legal BAC (blood alcohol concentration) limit for drivers under 21 in California is:",choices:["0.08%","0.05%","0.01%","0.02%"],ans:2,exp:"California has a zero-tolerance policy for under-21 drivers. The BAC limit is 0.01% — essentially zero."},
+{cat:"BAC & DUI",q:"If you are 21 or older, the legal BAC limit in California is:",choices:["0.10%","0.05%","0.08%","0.04%"],ans:2,exp:"The legal BAC limit for drivers 21 and over in California is 0.08%."},
+{cat:"BAC & DUI",q:"California's 'implied consent' law means:",choices:["You agree to a field sobriety test when asked","You have consented to a chemical test of your blood, breath, or urine if arrested for DUI","Police can search your car anytime","You must always carry ID while driving"],ans:1,exp:"By driving in California, you have impliedly consented to a chemical test if lawfully arrested for DUI. Refusing can result in license suspension."},
+{cat:"BAC & DUI",q:"A first DUI conviction for an adult in California can result in:",choices:["A warning only","Up to 6 months in jail, fines, and license suspension","A $50 fine","Community service only"],ans:1,exp:"A first DUI can result in up to 6 months in jail, fines of $390–$1,000+ (plus penalties), and a 6-month license suspension."},
+{cat:"BAC & DUI",q:"If you are under 21 and caught driving with a BAC of 0.01% or more, your license will be suspended for:",choices:["30 days","6 months","1 year","3 years"],ans:2,exp:"Under California's zero-tolerance law, drivers under 21 with a BAC of 0.01% or more face a 1-year license suspension."},
+{cat:"BAC & DUI",q:"Which of the following can affect your ability to drive safely?",choices:["Prescription medications","Over-the-counter cold medicine","Illegal drugs","All of the above"],ans:3,exp:"Any substance that impairs your ability to drive — prescription meds, OTC medicines, or illegal drugs — makes it unsafe and illegal to drive."},
+
+// ── Speed Limits & Safe Driving (~6) ──
+{cat:"Speed Limits",q:"The default speed limit in a California residential area is:",choices:["20 mph","25 mph","30 mph","35 mph"],ans:1,exp:"Unless otherwise posted, the speed limit in residential areas is 25 mph."},
+{cat:"Speed Limits",q:"The speed limit near a school when children are present is:",choices:["15 mph","20 mph","25 mph","30 mph"],ans:2,exp:"The speed limit in a school zone when children are present is 25 mph unless otherwise posted."},
+{cat:"Speed Limits",q:"California's 'Basic Speed Law' states that:",choices:["You may always drive the posted speed limit","You must never drive faster than is safe for current conditions","You should drive 5 mph under the limit in rain","You can exceed the limit to keep up with traffic"],ans:1,exp:"The Basic Speed Law means you must never drive faster than is safe for current road, weather, and traffic conditions — even if that's below the posted limit."},
+{cat:"Speed Limits",q:"At a blind intersection (where you cannot see for 100 feet in either direction), the speed limit is:",choices:["25 mph","20 mph","15 mph","10 mph"],ans:2,exp:"At a blind intersection, the speed limit is 15 mph."},
+{cat:"Speed Limits",q:"The maximum speed limit on most California highways is:",choices:["55 mph","60 mph","65 mph","70 mph"],ans:2,exp:"The maximum speed limit on most California highways is 65 mph, though some rural freeways may be posted at 70 mph."},
+{cat:"Speed Limits",q:"When driving in fog, you should:",choices:["Use your high beams for better visibility","Use low-beam headlights","Drive at the posted speed limit","Follow closely behind the car ahead for guidance"],ans:1,exp:"In fog, use your low-beam headlights (or fog lights). High beams reflect off the fog and reduce visibility."},
+
+// ── Lane Usage & Turning (~5) ──
+{cat:"Lanes & Turning",q:"You want to turn left from a two-way street onto a one-way street. You should:",choices:["Turn into any available lane","Turn into the left lane of the one-way street","Turn into the right lane","Wait for a green arrow"],ans:1,exp:"When turning left onto a one-way street, you should complete your turn into the closest left lane."},
+{cat:"Lanes & Turning",q:"When is it legal to make a U-turn at an intersection?",choices:["Only when there is a sign permitting it","When it is not prohibited and you can do it safely","Never at an intersection","Only at traffic signals"],ans:1,exp:"U-turns are allowed at intersections unless a sign prohibits them, and only when you can complete the turn safely."},
+{cat:"Lanes & Turning",q:"You may legally turn right on a red light after:",choices:["Waiting for 5 seconds","Slowing down and checking traffic","Coming to a complete stop and yielding to pedestrians and traffic","Flashing your headlights"],ans:2,exp:"You may turn right on red after coming to a complete stop and yielding to all pedestrians and cross traffic. Unless a sign prohibits it."},
+{cat:"Lanes & Turning",q:"A center left-turn lane (marked with two-way arrows) is used for:",choices:["Passing slower vehicles","Making left turns only from either direction","Driving in when traffic is heavy","Parking temporarily"],ans:1,exp:"A shared center left-turn lane is only for making left turns. It is not a driving or passing lane."},
+{cat:"Lanes & Turning",q:"When may you drive in an HOV (carpool) lane?",choices:["Anytime if you're driving a hybrid car","When you have the minimum number of occupants shown on the sign","Only on weekends","When traffic is heavy"],ans:1,exp:"You can use an HOV lane when you meet the minimum occupancy requirement posted on the sign (usually 2 or more people). Some clean-air vehicles with decals may also qualify."},
+
+// ── Parking Rules (~4) ──
+{cat:"Parking",q:"When parking uphill on a street with a curb, you should turn your wheels:",choices:["Toward the curb (right)","Away from the curb (left)","Straight ahead","It doesn't matter"],ans:1,exp:"When parking uphill with a curb, turn your wheels away from the curb (to the left). If your car rolls, it will roll into the curb."},
+{cat:"Parking",q:"It is illegal to park within how many feet of a fire hydrant?",choices:["10 feet","15 feet","20 feet","25 feet"],ans:1,exp:"You must not park within 15 feet of a fire hydrant."},
+{cat:"Parking",q:"A painted red curb means:",choices:["No parking for longer than 30 minutes","Loading zone only","No stopping, standing, or parking at any time","Time-limited parking"],ans:2,exp:"A red curb means no stopping, standing, or parking at any time (except buses at bus zones in some cases)."},
+{cat:"Parking",q:"When parking downhill on a street with a curb, turn your wheels:",choices:["Away from the curb (left)","Toward the curb (right)","Straight ahead","Toward the center of the road"],ans:1,exp:"When parking downhill, turn your wheels toward the curb (right). If the car rolls, it will roll into the curb and stop."},
+
+// ── Sharing the Road (~4) ──
+{cat:"Sharing the Road",q:"When passing a bicyclist on the road, you must give at least:",choices:["2 feet of space","3 feet of space","5 feet of space","1 foot of space"],ans:1,exp:"California law requires motorists to give cyclists at least 3 feet of clearance when passing."},
+{cat:"Sharing the Road",q:"You are driving behind a large truck. You should:",choices:["Follow closely to reduce wind resistance","Increase your following distance","Drive in their blind spot to stay visible","Flash your lights to signal them"],ans:1,exp:"Large trucks need more stopping distance and have large blind spots. Increase your following distance."},
+{cat:"Sharing the Road",q:"A motorcyclist has the same rights as:",choices:["A bicyclist","A pedestrian","A car driver","None — motorcycles have fewer rights"],ans:2,exp:"Motorcyclists have the same rights and responsibilities as any other vehicle driver on the road."},
+{cat:"Sharing the Road",q:"Large trucks have large blind spots (No-Zones). Where is the biggest blind spot?",choices:["Directly in front","On the left side","On the right side and behind the truck","On the roof"],ans:2,exp:"The largest blind spots on a truck are on the right side and directly behind. If you can't see the truck's mirrors, the driver can't see you."},
+
+// ── Provisional License Restrictions (~4) ──
+{cat:"Provisional License",q:"During the first 12 months with a provisional license, you may NOT drive with passengers under 20 unless accompanied by a:",choices:["Licensed driver 21 or older","Licensed driver 25 or older","Licensed driver 18 or older","Parent or guardian only"],ans:0,exp:"For the first 12 months, provisional license holders cannot carry passengers under 20 unless a licensed driver 25 or older is in the car (some exceptions apply)."},
+{cat:"Provisional License",q:"With a provisional license, you may NOT drive between:",choices:["10 PM and 5 AM","11 PM and 5 AM","Midnight and 6 AM","9 PM and 5 AM"],ans:1,exp:"Provisional license holders may not drive between 11 PM and 5 AM during the first 12 months, unless certain exceptions apply (like work necessity with a signed note)."},
+{cat:"Provisional License",q:"How long must you hold a California learner's permit before you can take the driving test?",choices:["3 months","6 months","9 months","12 months"],ans:1,exp:"You must hold your learner's permit for at least 6 months before you're eligible to take the behind-the-wheel driving test."},
+{cat:"Provisional License",q:"A minor's provisional license can be suspended or restricted if they receive:",choices:["1 at-fault accident","Any traffic violation or at-fault crash within 12 months","3 violations","Only DUI violations"],ans:1,exp:"A provisional license can be restricted or suspended for any at-fault crash or traffic violation within the first 12 months."},
+
+// ── Misc (~3) ──
+{cat:"Misc Rules",q:"Drivers under 18 in California may NOT use a cell phone while driving:",choices:["Only for texting","Under any circumstances, even hands-free","Only in school zones","Only on freeways"],ans:1,exp:"Drivers under 18 may not use a cell phone or any electronic device while driving — including hands-free. No exceptions."},
+{cat:"Misc Rules",q:"You must turn on your headlights:",choices:["Only at night","30 minutes after sunset to 30 minutes before sunrise, and whenever visibility is less than 1,000 feet","Only when it's completely dark","Only in rain"],ans:1,exp:"Headlights are required from 30 minutes after sunset to 30 minutes before sunrise, and any time conditions (fog, rain, etc.) reduce visibility to less than 1,000 feet."},
+{cat:"Misc Rules",q:"The recommended safe following distance behind another vehicle is at least:",choices:["1 second","2 seconds","3 seconds","5 seconds"],ans:2,exp:"The recommended following distance is at least 3 seconds behind the vehicle ahead. Increase it in bad weather or when following large vehicles."},
+];
+
+// ═══════════════════════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════════════════════
+let pool=[], idx=0, right=0, wrong=0, answered=false, missed=[];
+
+// ═══════════════════════════════════════════════════════
+//  UTILITIES
+// ═══════════════════════════════════════════════════════
+function shuffle(a){for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+const $=id=>document.getElementById(id);
+const letters=['A','B','C','D'];
+
+// ═══════════════════════════════════════════════════════
+//  START / RESTART
+// ═══════════════════════════════════════════════════════
+function startQuiz(subset){
+  pool=subset?shuffle([...subset]):shuffle([...questions]);
+  idx=0;right=0;wrong=0;answered=false;missed=[];
+  $('startScreen').classList.add('hidden');
+  $('resultsScreen').classList.add('hidden');
+  $('quizScreen').classList.remove('hidden');
+  updateScore();
+  renderQuestion();
+}
+
+// ═══════════════════════════════════════════════════════
+//  RENDER QUESTION
+// ═══════════════════════════════════════════════════════
+function renderQuestion(){
+  answered=false;
+  const q=pool[idx];
+  const total=pool.length;
+  $('qNum').textContent=`${idx+1} / ${total}`;
+  $('qCat').textContent=q.cat;
+  $('progFill').style.width=`${((idx)/total)*100}%`;
+
+  let html=`<div class="question-text">${q.q}</div><div class="choices">`;
+  q.choices.forEach((c,i)=>{
+    html+=`<button class="choice-btn" data-idx="${i}" id="ch${i}">
+      <span class="letter">${letters[i]}</span><span>${c}</span>
+    </button>`;
+  });
+  html+=`</div><div id="expArea"></div><div id="nextArea"></div>`;
+  const card=$('questionCard');
+  card.innerHTML=html;
+  // Attach click listeners
+  card.querySelectorAll('.choice-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>pick(parseInt(btn.dataset.idx)));
+  });
+  // re-trigger animation
+  card.style.animation='none';
+  card.offsetHeight;
+  card.style.animation='';
+}
+
+// ═══════════════════════════════════════════════════════
+//  PICK AN ANSWER
+// ═══════════════════════════════════════════════════════
+function pick(i){
+  if(answered)return;
+  answered=true;
+  const q=pool[idx];
+  const isCorrect=i===q.ans;
+
+  // Disable all buttons
+  document.querySelectorAll('.choice-btn').forEach(b=>b.disabled=true);
+
+  // Highlight correct
+  $('ch'+q.ans).classList.add('correct');
+
+  if(isCorrect){
+    right++;
+  }else{
+    wrong++;
+    $('ch'+i).classList.add('wrong');
+    missed.push(q);
+  }
+  // Dim others
+  q.choices.forEach((_,j)=>{
+    if(j!==q.ans&&j!==i) $('ch'+j).classList.add('dimmed');
+  });
+
+  updateScore();
+
+  // Explanation
+  $('expArea').innerHTML=`<div class="explanation ${isCorrect?'right':'wrong-exp'}">
+    ${isCorrect?'✅ Correct!':'❌ Incorrect.'} ${q.exp}
+  </div>`;
+
+  // Next button
+  const isLast=idx>=pool.length-1;
+  const nextBtn=document.createElement('button');
+  nextBtn.className='next-btn';
+  nextBtn.textContent=isLast?'See Results':'Next →';
+  nextBtn.addEventListener('click',()=>isLast?showResults():nextQ());
+  $('nextArea').innerHTML='';
+  $('nextArea').appendChild(nextBtn);
+}
+
+function nextQ(){idx++;renderQuestion()}
+function updateScore(){
+  $('rightCount').textContent=right;
+  $('wrongCount').textContent=wrong;
+}
+
+// ═══════════════════════════════════════════════════════
+//  RESULTS
+// ═══════════════════════════════════════════════════════
+function showResults(){
+  $('quizScreen').classList.add('hidden');
+  const total=pool.length;
+  const pct=Math.round((right/total)*100);
+  const passed=pct>=83; // CA DMV passing is ~83%
+
+  // Category breakdown
+  const cats={};
+  pool.forEach(q=>{
+    if(!cats[q.cat])cats[q.cat]={total:0,correct:0};
+    cats[q.cat].total++;
+  });
+  pool.forEach((q,i)=>{
+    if(!missed.find(m=>m===q)) cats[q.cat].correct++;
+  });
+
+  let catHtml='';
+  for(const[name,data]of Object.entries(cats)){
+    const cpct=Math.round((data.correct/data.total)*100);
+    const cls=cpct===100?'perfect':cpct<70?'needs-work':'';
+    catHtml+=`<div class="cat-row ${cls}">
+      <span class="cat-name">${name}</span>
+      <span class="cat-score">${data.correct}/${data.total} (${cpct}%)</span>
+    </div>`;
+  }
+
+  const emoji=passed?'🎉':pct>=70?'😅':'📚';
+  const subtitle=passed?'You passed! You\'re ready for Thursday!' : pct>=70?'Almost there — review the red categories below.':'Keep studying — focus on the categories marked in red.';
+
+  let html=`<div class="results">
+    <div class="results-header">
+      <div class="emoji">${emoji}</div>
+      <div class="pct">${pct}%</div>
+      <div class="score-detail">${right} correct out of ${total}</div>
+      <div class="subtitle">${subtitle}</div>
+    </div>
+    <div class="cat-breakdown">
+      <h3>Score by Category</h3>
+      ${catHtml}
+    </div>
+    <div class="results-btns">`;
+
+  if(missed.length>0){
+    html+=`<button class="next-btn" id="retryBtn">🔁 Retry ${missed.length} Missed Question${missed.length>1?'s':''}</button>`;
+  }
+  html+=`<button class="next-btn secondary" id="restartBtn">🔀 Start Over (Reshuffled)</button>`;
+  html+=`</div></div>`;
+
+  $('resultsScreen').innerHTML=html;
+  $('resultsScreen').classList.remove('hidden');
+  // Attach result button listeners
+  const retryBtn=$('retryBtn');
+  if(retryBtn) retryBtn.addEventListener('click',()=>startQuiz(missed));
+  $('restartBtn').addEventListener('click',()=>startQuiz());
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ═══════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded',()=>{
+  $('startBtn').addEventListener('click',()=>startQuiz());
+});
+</script>
+</body>
+</html>
